@@ -1,11 +1,13 @@
-require 'sqlite3'
 
 module Database
   class InvalidAttributeError < StandardError;end
   class NotConnectedError < StandardError;end
 
   class Model
-    def self.inherited(klass)
+    
+    def self.inherited(subclass)
+      self.database = APP_ROOT.join('db', 'students.db')    
+      subclass.attribute_names =  self.execute("PRAGMA table_info(#{subclass.tablename})").map{|column|column["name"].to_sym}
     end
 
     def self.connection
