@@ -18,16 +18,17 @@ class Sudoku
         if cell_empty? && remaining_possibilities.length == 1
           #sleep(0.05)
           set_cell!(remaining_possibilities[0])
-          puts 
-          board
+          print_board
         end
       else
         puts "Sudoku unsolvable"
+        sleep(2)
         @@sudokus_unsolvable +=1
         return
       end
     end
     puts "Sudoku solved."
+    sleep(2)
     @@sudokus_solved +=1  
   end
  
@@ -96,7 +97,6 @@ class Sudoku
  
   def all_numbers_in_row
     row_num = @cell[0]
-    col_num = @cell[1]
     numbers_found = []
     
     0.upto(8) do |var|
@@ -108,7 +108,6 @@ class Sudoku
   end
  
   def all_numbers_in_column
-    row_num = @cell[0]
     col_num = @cell[1]
     numbers_found = []
     
@@ -152,7 +151,7 @@ class Sudoku
   # Returns a string representing the current state of the board
   # Don't spend too much time on this method; flag someone from staff
   # if you are.
-  def board
+  def print_board
     output = ""
     counter = 0
     @board_state.each do |row|
@@ -162,6 +161,9 @@ class Sudoku
         output << row[6..8].join(" ") + "\n"
         counter +=1
     end
+    sleep(0.2)
+    print "\e[H" #move cursor to home!
+    print "\e[2J" #clear screen
     puts output.gsub(/0/," ")
   end
 
