@@ -1,0 +1,22 @@
+<div class="container">
+  <div id="player_names">
+    <p id="player1_name"><%= @game.players[0].name %></p>
+    <p id="player2_name"><%= @game.players[1].name %></p>
+  </div>
+  <div id="racer_table_div">
+    <table class="racer_table">
+      <tr id="player1_strip">
+        <td class="active"></td>
+      </tr>
+      <tr id="player2_strip">
+        <td class="active"></td>
+      </tr>
+    </table>
+  </div>
+  <br>
+  <div id="winner"></div>
+  <br>
+  <button id="restart" type="button">Start New Game</button>
+</div>
+
+<script src="/js/oojs.js"></script>
