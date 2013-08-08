@@ -6,8 +6,25 @@ module Database
   class Model
     
     def self.inherited(subclass)
+
+      # a hack to reconnect DB. not sure why it becomes disconnected here.
       self.database = APP_ROOT.join('db', 'students.db')    
-      subclass.attribute_names =  self.execute("PRAGMA table_info(#{subclass.tablename})").map{|column|column["name"].to_sym}
+
+      # creates an array of attribute names for subclass from its table column names
+      subclass.attribute_names =  self.execute("PRAGMA table_info(#{subclass.table_name})").map{|column|column["name"].to_sym}
+
+      # creates getter instance methods for all subclass attributes
+      subclass.attribute_names.each do |attribute|
+        define_method(attribute.to_s) { self[attribute] }
+      end
+
+      # creates setter instance methods for all subclass attribtues
+      subclass.attribute_names.each do |attribute|
+        define_method(attribute.to_s + "=") do | value | 
+          self[attribute] = value
+          self.save
+        end
+      end
     end
 
     def self.connection
@@ -77,9 +94,6 @@ module Database
     def valid_attribute?(attribute)
       self.class.attribute_names.include? attribute
     end
-
-
-    # methods abstracted from student and cohort
     
     def initialize(attributes = {})
       attributes.symbolize_keys!
@@ -90,6 +104,8 @@ module Database
       self.class.attribute_names.each do |name|
         @attributes[name] = attributes[name]
       end
+
+      # @attributes[:table_name] ||= self.class.camel_to_snake
 
       @old_attributes = @attributes.dup
     end
@@ -121,7 +137,7 @@ module Database
 
 
     def self.all
-      Database::Model.execute("SELECT * FROM #{self.tablename}").map do |row|
+      Database::Model.execute("SELECT * FROM #{self.table_name}").map do |row|
         self.new(row)
       end
     end
@@ -133,7 +149,7 @@ module Database
     end
 
     def self.where(query, *args)
-      Database::Model.execute("SELECT * FROM #{self.tablename} WHERE #{query}", *args).map do |row|
+      Database::Model.execute("SELECT * FROM #{self.table_name} WHERE #{query}", *args).map do |row|
         self.new(row)
       end
     end
@@ -146,8 +162,6 @@ module Database
       self[:id].nil?
     end
 
-    private
-
     def self.prepare_value(value)
       case value
       when Time, DateTime, Date
@@ -157,6 +171,20 @@ module Database
       end
     end
 
+    def self.table_name
+      self.camel_to_snake
+    end
+
+    def self.camel_to_snake
+      self.to_s.gsub(/::/, '/').
+      gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+      gsub(/([a-z\d])([A-Z])/,'\1_\2').
+      tr("-", "_").
+      downcase + "s"
+    end 
+
+    private 
+
     def insert!
       self[:created_at] = DateTime.now
       self[:updated_at] = DateTime.now
@@ -165,7 +193,7 @@ module Database
       values = self.attributes.values
       marks  = Array.new(fields.length) { '?' }.join(',')
 
-      insert_sql = "INSERT INTO #{tablename} (#{fields.join(',')}) VALUES (#{marks})"
+      insert_sql = "INSERT INTO #{table_name} (#{fields.join(',')}) VALUES (#{marks})"
 
       results = Database::Model.execute(insert_sql, *values)
 
@@ -181,18 +209,14 @@ module Database
       values = self.attributes.values
 
       update_clause = fields.map { |field| "#{field} = ?" }.join(',')
-      update_sql = "UPDATE #{tablename} SET #{update_clause} WHERE id = ?"
+      update_sql = "UPDATE #{table_name} SET #{update_clause} WHERE id = ?"
 
       # We have to use the (potentially) old ID attributein case the user has re-set it.
       Database::Model.execute(update_sql, *values, self.old_attributes[:id])
     end
 
-    def self.tablename
-      self.to_s.downcase + "s"
-    end
-
-    def tablename
-      self.class.to_s.downcase + "s"
+    def table_name
+      self.class.table_name
     end
   end
 end

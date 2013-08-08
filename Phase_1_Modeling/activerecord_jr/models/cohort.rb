@@ -10,7 +10,6 @@ class Cohort < Database::Model
     students.each do |student|
       student.cohort = self
     end
-
     students
   end
 
