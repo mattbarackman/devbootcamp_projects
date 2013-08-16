@@ -1,6 +1,6 @@
 # DBC Overflow
-[Live Version](http://fierce-eyrie-1667.herokuapp.com/)
-[Github Repo](https://github.com/mattbarackman/dbc_overflow)
+- [Live Version](http://fierce-eyrie-1667.herokuapp.com/)
+- [Github Repo](https://github.com/mattbarackman/dbc_overflow)
 
 ## Assignment
 - Create a StackOverflow-style questiona nd answer site
