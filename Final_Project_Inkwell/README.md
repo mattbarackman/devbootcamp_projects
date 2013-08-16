@@ -4,6 +4,9 @@ Inkwell was made as a final project for Dev Bootcamp, a programming course, over
 ## Live Site:
 [www.tryinkwell.com](http://www.tryinkwell.com)
 
+## Code Base:
+[https://github.com/mattbarackman/inkwell](https://github.com/mattbarackman/inkwell)
+
 ## Concept:
 Inkwell makes it easy to get birthday cards out on time. It is an intelligent birthday card store that allows you to store events like birthdays or anniversaries on the site, than purchase cards for them in advance. Once purchased, users can get on with their lives. Shortly before each event the unwritten birthday card will arrive at their door, with just enough time to handwrite a nice note and mail it to their loved one.
 
